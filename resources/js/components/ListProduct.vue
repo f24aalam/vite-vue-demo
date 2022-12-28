@@ -59,7 +59,7 @@ async function fetchProducts(url) {
                     {{ product.category }}
                 </td>
                 <td>
-
+                    <save-product :product="product" />
                 </td>
             </tr>
         </tbody>

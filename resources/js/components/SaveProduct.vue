@@ -1,10 +1,14 @@
 <script setup>
-import { ref } from "@vue/runtime-core";
+import { computed, onMounted, ref } from "@vue/runtime-core";
 import axios from "axios";
 
+const props = defineProps({
+    'product': Object
+});
+
+const isEdit = computed(() => props.product !== undefined);
 
 const openModel = ref(false);
-
 const form = ref({
     csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
     name: '',
@@ -13,11 +17,22 @@ const form = ref({
     errors: {}
 });
 
+onMounted(() => {
+    if (isEdit) {
+        form.value = {
+            ...form.value,
+            ...props.product
+        }
+
+        console.log(form.value)
+    }
+});
+
 function toggleModel() {
     openModel.value = !openModel.value
 }
 
-async function saveForm() {
+async function createForm() {
     try {
         const response = await axios.post('/products', form.value)
         if (response.status === 201) {
@@ -28,10 +43,22 @@ async function saveForm() {
     }
 }
 
+async function updateForm() {
+    try {
+        const response = await axios.put(`/products/${props.product.id}`, form.value)
+        if (response.status === 200) {
+            window.location.reload();
+        }
+    } catch (error) {
+        form.value.errors = error.response.data.errors
+    }
+}
+
+
 </script>
 <template>
     <button @click="toggleModel" class='inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150'>
-        Create Product
+        {{ isEdit ? 'Edit' : 'Create' }}
     </button>
     <div v-if="openModel" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen px-4 text-center md:items-center sm:block sm:p-0">
@@ -68,7 +95,7 @@ async function saveForm() {
                     </div>
 
                     <div class="flex justify-end mt-6">
-                        <button type="button" @click="saveForm" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <button type="button" @click="isEdit ? updateForm() : createForm()" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             Save
                         </button>
                     </div>

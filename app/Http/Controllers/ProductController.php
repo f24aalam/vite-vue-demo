@@ -32,4 +32,20 @@ class ProductController extends Controller
 
         return response()->json([], 201);
     }
+
+    public function update(Request $request, Product $product)
+    {
+        $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+            'category' => 'required',
+        ]);
+
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->category = $request->category;
+        $product->save();
+
+        return response()->json([], 200);
+    }
 }
