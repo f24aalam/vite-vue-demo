@@ -1,7 +1,7 @@
 import './bootstrap';
 
 import { createApp } from 'vue';
-import ComponentA from './ComponentA.vue';
+import ComponentA from './components/ComponentA.vue';
 
 const app = createApp({});
 
